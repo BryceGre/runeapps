@@ -1,0 +1,16 @@
+{
+	"appName": "Advanced Wiki",
+	"description": "An advanced way to view the Runescape Wiki. This app will also open if you press alt+1 over any examine option in-game.",
+	"appUrl": "https://610games.com/runeapps/object/",
+	"configUrl": "https://610games.com/runeapps/object/appconfig.json",
+	"iconUrl": "https://runeapps.org/apps/alt1/object/icon.png",
+	"defaultWidth": 280,
+	"defaultHeight": 340,
+	"minWidth": 200,
+	"minHeight": 250,
+	"maxWidth": 500,
+	"maxHeight": 500,
+	"requestHandlers": [ { "handlerName": "object", "handlerUrl": "https://610games.com/runeapps/object/?object=%s", "handlerScript": "openWindow('%s', true);" } ],
+	"appFrame": "default",
+	"permissions": "none"
+}

@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>RS Wiki</title>
+	<link rel="icon" href="https://runeapps.org/apps/alt1/object/icon.png" type="image/x-icon" />
+	<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" type="text/css" href="https://runeapps.org/runeappslib.css"/>
+	<link rel="stylesheet" type="text/css" href="https://runeapps.org/nis/nis.css"/>
+	<link rel="stylesheet" type="text/css" href="https://runeapps.org/nis/alt1-currentskin/skinstyle.css"/>
+	<script type="text/javascript" src="https://runeapps.org/runeappslib.js"></script>
+	<script type="text/javascript" src="https://runeapps.org/alt1lib.js"></script>
+	<script type="text/javascript" src="lib/htmlparser.js"></script>
+	<script type="text/javascript" src="lib/parser.js"></script>
+	<script type="text/javascript" src="wikipage.js"></script>
+	<script type="text/javascript" src="rswiki.js"></script>
+	<script type="text/javascript" src="index.js"></script>
+	<script type="text/javascript">
+        function elopen(elem) { if (elem && elem.classList) { elem.classList.add("open"); } }
+        function elclose(elem) { if (elem && elem.classList) { elem.classList.remove("open"); } }
+        function eltoggle(elem) { if (elem && elem.classList) { elem.classList.toggle("open"); } }
+        function elisopen(elem) { return (elem && elem.classList && elem.classList.contains("open")); }
+        function elenable(elem) { if (elem && elem.classList) { elem.classList.add("enabled"); } }
+        function eldisable(elem) { if (elem && elem.classList) { elem.classList.remove("enabled"); } }
+	</script>
+	<style type="text/css">
+	    :root {--sidebar-width:200px; --recent-height:105px; --nis-col-med:#C8C8CA;}
+	    .hidden{display:none;}
+	    .glow{animation-name:glow; animation-duration:1s;} @keyframes glow{0%{box-shadow:0 0 0 var(--nis-col-urlhover);} 50%{box-shadow:0 0 8px var(--nis-col-urlhover);} 100%{box-shadow:0 0 0 var(--nis-col-urlhover);}}
+	    /* page name input box */
+		#nameouter{position:absolute; top:3px; left:40px; right:40px; height:25px;}
+			#nameinput{position:absolute; width:100%; height:100%; opacity:0; cursor:pointer; z-index:1; color:var(--nis-col-std); font-size:24px; white-space:nowrap; background:url(/nis/alt1-currentskin/background.png); border:1px solid rgba(128,128,128,0.5); font-family:serif; outline:none;}
+			#itemname{width:100%; height:100%; position:absolute; color:var(--nis-col-std); font-size:24px; white-space:nowrap; font-family:serif; padding:1px;}
+	    /* header buttons (open wiki, show sidebar) */
+		#wikibutton{position:absolute; top:12px; right:4px; background-image:url(img/wikibutton.png);}
+		#sidebutton{position:absolute; top:4px; left:4px; width:25px; height:25px; line-height:25px; color:var(--nis-col-med); text-align:center; cursor:pointer; border-radius:8px; border:2px ridge #41555F; background-color:var(--nis-col-backsub);}
+		
+		/* sidebar elements (recently closed, open windows, window-related buttons) */
+		#sidebar{position:fixed; top:0px; left:calc(0px - var(--sidebar-width)); height:100%; width:var(--sidebar-width); z-index:99; overflow:hidden; border-right:2px ridge #41555F; transition:left 0.5s; background-image:url(/nis/alt1-currentskin/background.png); background-color:var(--nis-col-back); filter:brightness(75%);} #sidebar.open{left:0px;}
+		    #recentlist{position:absolute; left:0px; bottom:calc(21px - var(--recent-height)); height:var(--recent-height); width:100%; overflow:hidden; border-top:2px ridge #41555F; transition:bottom 0.5s; background-color:var(--nis-col-backsub);} #recentlist.open{bottom:21px;}
+		    #windowheader{position:absolute; left:0px; height:25px; right:0px; line-height:25px; overflow-x:hidden; color:var(--nis-col-std);}
+		    #windowslist{position:absolute; left:0px; top:28px; bottom:21px; width:100%; overflow-x:hidden; transition:bottom 0.5s;} #recentlist.open ~ #windowslist{bottom:calc(21px + var(--recent-height));}
+        		.windowitem{left:0px; height:21px; right:0px; overflow-x:hidden; background-color:var(--nis-col-back);} .windowitem.sub{background-color:var(--nis-col-backsub);}
+            		.windowname{position:absolute; left:0px; right:21px; height:21px; line-height:21px; color:var(--nis-col-std); overflow:hidden;}
+            		.windowclose{position:absolute; width:21px; height:21px; right:0px; cursor:pointer; background-image:url(img/closebutton.png);}
+    		#opentab{position:absolute; top:0px; height:21px; width:21px; margin:2px 0px; right:0px; cursor:pointer; background-image:url(img/openbutton.png);}
+    		#closeall{position:absolute; width:75px; height:21px; left:0px; bottom:0px; line-height:21px; text-align:center; z-index:1; cursor:pointer; background-image:url(img/closeallbutton.png);} #closeall:hover{background-position:0px -21px}
+    		#recently{position:absolute; width:125px; height:21px; right:0px; bottom:0px; line-height:21px; text-align:center; z-index:1; cursor:pointer; background-image:url(img/recentbutton.png);} #recently:hover{background-position:0px -21px}
+    		    #recentlist ~ #recently span{display:inline-block; margin-left:2px; font-weight:bolder; transform:rotate(0deg); transition:transform 0.5s;} #recentlist.open ~ #recently span{transform:rotate(180deg);}
+		/* main wiki content (content area, back button, tabs) */
+		#contentouter{position:absolute; top:37px; left:0px; right:0px; bottom:0px; background:var(--nis-col-backsub); color:var(--nis-col-low); padding:25px 5px 5px; text-align:justify; overflow-y:auto; overflow-x:auto; font-family:sans-serif; font-size:12px;}
+		#backbutton{float:left; left:10px; width:35px; color:rgba(255, 128, 0, 0.5); transition:color 0.25s; font-size:16px; z-index:11; filter:none;} #backbutton.enabled{color:rgb(255, 128, 0);}
+		.tabcontent{}
+		/* menu elements (suggestion menu, context menu) */
+		#opensearch{position:absolute; z-index:90; border-bottom-left-radius:4px; border-bottom-right-radius:4px; border:1px ridge rgba(128,128,128,0.5); border-top-width:0px; background-color:var(--nis-col-back); display:none;} #opensearch.open {display:block;}
+		#contextmenu{position:absolute; width:125px; height:auto; overflow:hidden; z-index:92; border-radius:4px; border:2px ridge silver; background-color:rgb(0,0,0); display:none;}  #contextmenu.open {display:block;}
+    		.menuheader{position:relative; height:16px; line-height:16px; margin:0px; border-bottom:2px ridge silver; color:var(--nis-col-med); background-color:var(--nis-col-back);}
+    		.menuitem{position:relative; height:21px; line-height:21px; margin:0px; color:var(--nis-col-med); background-color:rgb(0,0,0);}  .menuitem.sub{background-color:var(--nis-col-back);}
+    		.menuitem.hover,.menuitem:hover:not(.nohover){background-color:var(--nis-col-faded);}
+	        option.menuitem{cursor:pointer;}
+		
+		#gecontent{display:none; float:left; clear:left;}
+			.wikiquote{padding:0px 30px; position:relative;}
+				.wikiquotestart{position:absolute; left:5px; top:0px; color:var(--nis-col-std); font-size:40px; font-family:serif;}
+				.wikiquoteend{position:absolute; right:5px; bottom:-20px; color:var(--nis-col-std); font-size:40px; font-family:serif;}
+			.wikilink{text-decoration:underline; color:var(--nis-col-url); cursor:pointer;}
+			.wikiheader{font-size:18px; font-weight:bold; color:var(--nis-col-std);}
+			.wikihorline{margin:5px 7px 10px; height:1px; background:var(--nis-col-std);}
+			.wikitable{border:1px solid #666;}
+				.wikitable tr:nth-child(even){background:rgba(255,255,255,0.1);}
+				.wikitable tr:nth-child(odd){background:rgba(255,255,255,0.15);}
+				.wikitable th{color:var(--nis-col-std);}
+			.tabcontent ul, .tabcontent ol{margin:0px; padding-left:20px;}
+			.editsection{display:none;}
+			.floatright{clear:right; float:right; max-width:20%; max-width:20vw; margin:5px 0px 5px 10px;}
+			.floatleft{clear:left; float:left; max-width:20%; max-width:20vw; margin:5px 10px 5px 0px;}
+			.floatright img, .floatleft img{max-width:100%; height:initial;}
+			.wiki-bonuses img{max-width:20vw; height:initial;}
+			.wiki-monster{text-align:center;}
+			.wiki-monster img{max-width:20vmin; height:initial;}
+			.wiki-bonuses th{width:70px !important;}
+	</style>
+</head>
+<body class="nis" onload="load()" onblur="elclose(elid('opensearch'));">
+	<div id="nameouter">
+		<input id="nameinput" spellcheck="false" autocomplete="off" />
+		<div id="itemname">Click here to search</div>
+		<datalist id="opensearch"></datalist>
+	</div>
+	<div id="wikibutton" class="nissmallimagebutton" title="View in default browser" onclick="openWiki();"></div>
+	<div class="nisseperator" style="top:35px; padding-right:10px;">
+		<div style="width:10px; height:1px; float:right;"></div>
+		<div id="backbutton" onclick="goBack();" class="contenttab" style="">&#x1F870;</div>
+		<div id="contenttab0" onclick="settab(0);" class="contenttab activetab">Article</div>
+		<div id="contenttab1" onclick="settab(1);" style="display:none;" class="contenttab">Stats</div>
+		<div id="contenttab2" onclick="settab(2);" style="display:none;" class="contenttab">Item</div>
+		<div id="contenttab3" onclick="settab(3);" style="display:none;" class="contenttab">Info</div>
+		<div id="contenttab4" onclick="settab(4);" style="display:none;" class="contenttab">Drops</div>
+	</div>
+	<div id="sidebutton" onclick="elopen(elid('sidebar'));" onanimationend="this.classList.remove('glow');"></div>
+	<div id="sidebar">
+	    <div id="windowheader">Open Windows<div id="opentab" class="nissmallimagebutton" onclick="openWindow(wikihome);"></div></div>
+	    <div class="nisseperator" style="position:relative;"></div>
+	    <div id="recentlist"></div>
+	    <div id="recently" onclick="eltoggle(elid('recentlist'));">Recently Closed<span>&#x25b3;</span></div>
+	    <div id="closeall" onclick="closeAllWindows();">Close All</div>
+        <div id="windowslist"></div>
+	</div>
+	<div id="contentouter">
+		<div id="tabcontent0" class="tabcontent">
+			<div id="gecontent"></div>
+			<span id="wikicontent"></span>
+		</div>
+		<div id="tabcontent1" class="tabcontent" style="display:none;"></div>
+		<div id="tabcontent2" class="tabcontent" style="display:none;"></div>
+		<div id="tabcontent3" class="tabcontent" style="display:none;"></div>
+		<div id="tabcontent4" class="tabcontent" style="display:none;"></div>
+	</div>
+	<div id="contextmenu" onclick="elclose(this);">
+	    <div class='menuheader'>Choose Option</div>
+	    <div id="pagemenu">
+    	    <div id="backitem" class='menuitem sub' onclick="goBack();">Back</div>
+    	    <div id="frwditem" class='menuitem' onclick="goForward();">Forward</div>
+    	    <div class='menuitem sub' onclick="loadpage(wikiname, true);">Reload</div>
+	    </div>
+	    <div id="linkmenu">
+    	    <div class='menuitem sub' onclick="openWindow(menuelem.dataset.page);">Open in new tab</div>
+    	    <div class='menuitem' onclick="addWindow(menuelem.dataset.page);">Open in background</div>
+    	    <div class='menuitem sub' onclick="openWiki(menuelem.dataset.page);">Open in browser</div>
+	    </div>
+	    <div id="menucancel" class='menuitem'>Cancel</div>
+	</div>
+</body>
+</html>
