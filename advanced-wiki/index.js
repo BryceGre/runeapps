@@ -17,12 +17,22 @@ function load() {
 	
 	// clone a templace of the wiki content
 	WikiPage.template = elid("contentouter").cloneNode(true);
+    
+    var params = new URLSearchParams(window.location.search);
+    var object = params.get("object") || wikihome;
 	
-	// load previous wiki pages, or just load one wikihome
-	var current = window.localStorage.getItem("current") || 0;
-	var windows = (JSON.parse(window.localStorage.getItem("windows")) || [{name: current}]);
+	// get and open any previous wiki pages
+	var current = parseInt(window.localStorage.getItem("current"));
+	var windows = JSON.parse(window.localStorage.getItem("windows")) || [];
 	for (let page of windows) { addWindow(page, true); }
-	WikiPage.opened[(current < 0) ? 0 : current].activate(true);
+
+    if (isNaN(current) || params.get("object")) {
+        // open and load a new wiki page
+        addWindow(object, true).activate();
+    } else {
+        // load the previously openend wiki page
+        WikiPage.opened[Math.max(0, current)].activate(true);
+    }
 	
 	// add alt+1 pressed handler
 	if (typeof alt1 !== 'undefined') {
