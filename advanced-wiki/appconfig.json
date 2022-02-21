@@ -10,7 +10,7 @@
 	"minHeight": 250,
 	"maxWidth": 500,
 	"maxHeight": 500,
-	"requestHandlers": [ { "handlerName": "object", "handlerUrl": "/runeapps/advanced-wiki/?%s", "handlerScript": "openWindow('%s', true);" } ],
+	"requestHandlers": [ { "handlerName": "object", "handlerUrl": "/advanced-wiki/?object=%s", "handlerScript": "openWindow('%s', true);" } ],
 	"appFrame": "default",
 	"permissions": "none"
 }
