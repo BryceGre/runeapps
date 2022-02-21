@@ -1,8 +1,8 @@
 {
 	"appName": "Advanced Wiki",
 	"description": "An advanced way to view the Runescape Wiki. This app will also open if you press alt+1 over any examine option in-game.",
-	"appUrl": "https://brycegre.github.io/runeapps/advanced-wiki/",
-	"configUrl": "https://brycegre.github.io/runeapps/advanced-wiki/appconfig.json",
+	"appUrl": "https://runeapps.darrek.fun/advanced-wiki/",
+	"configUrl": "https://runeapps.darrek.fun/advanced-wiki/appconfig.json",
 	"iconUrl": "https://runeapps.org/apps/alt1/object/icon.png",
 	"defaultWidth": 280,
 	"defaultHeight": 340,
