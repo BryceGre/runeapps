@@ -1,10 +1,25 @@
 <html>
+    <head>
+        <script>
+            function make_addapp_url(base_url)
+            {
+                let appconfig_url = URL.parse("appconfig.json", base_url).href
+                return "alt1://addapp/" + appconfig_url
+            }
+            
+            document.addEventListener("DOMContentLoaded", function(evt) {
+                let advanced_wiki_url = URL.parse("./advanced-wiki/", document.baseURI).href
+                document.getElementById("advanced-wiki-page").setAttribute("href", advanced_wiki_url)
+                document.getElementById("advanced-wiki-addapp").setAttribute("href", make_addapp_url(advanced_wiki_url))
+            });
+        </script>
+    </head>
     <body>
         <h1>RuneApps</h1>
         <hr/>
         <h2 class="appName">Advanced Wiki</h2>
         <div class="description">An advanced way to view the Runescape Wiki. This app will also open if you press alt+1 over any examine option in-game.</div>
-        <div class="install-link"><a href="https://runeapps.darrek.fun/advanced-wiki/">Advanced Wiki</a> <a href="alt1://addapp/https://runeapps.darrek.fun/advanced-wiki/appconfig.json">[add to alt1]</a></div>
+        <div class="install-link"><a id="advanced-wiki-page" href="./advanced-wiki/">Advanced Wiki</a> <a id="advanced-wiki-addapp" href="alt1://addapp/./advanced-wiki/appconfig.json">[add to alt1]</a></div>
         <hr/>
     </body>
 </html>
